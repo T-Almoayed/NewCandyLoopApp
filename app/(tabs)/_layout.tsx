@@ -1,12 +1,19 @@
-import { Tabs } from 'expo-router';
 import React from 'react';
-
+import { Tabs } from 'expo-router';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { AuthProvider, useAuth } from '../../context/AuthContext'; // تأكد من أن المسار صحيح
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
-export default function TabLayout() {
+import LoginScreen from '../auth/LoginScreen';
+import SignUpScreen from '../auth/SignUpScreen';
+
+const Stack = createNativeStackNavigator();
+
+function TabLayout() {
   const colorScheme = useColorScheme();
+  const { user } = useAuth();
 
   return (
     <Tabs
@@ -14,9 +21,9 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
         tabBarStyle: {
-          paddingBottom: 10, // لتقليل المسافة السفلية
-          paddingTop: 5, // لتقليل المسافة العلوية لرفع الأيقونات
-          height: 60, // لضبط ارتفاع الشريط
+          paddingBottom: 10,
+          paddingTop: 5,
+          height: 60,
         },
       }}
     >
@@ -66,5 +73,17 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+  );
+}
+
+export default function Layout() {
+  return (
+    <AuthProvider>
+      <Stack.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
+        <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+        <Stack.Screen name="MainTabs" component={TabLayout} />
+      </Stack.Navigator>
+    </AuthProvider>
   );
 }

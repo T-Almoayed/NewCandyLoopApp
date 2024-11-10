@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { firebase } from '../../firebaseConfig';
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { firebase } from '../../firebaseConfig';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../../types';
 
 const colors = {
   primary: '#D60265', // اللون الرسمي لـ CandyLoop
@@ -12,7 +13,7 @@ const colors = {
 };
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
 
@@ -26,6 +27,10 @@ const LoginScreen = () => {
         Alert.alert('Success', 'Logged in successfully');
         setEmailOrPhone('');
         setPassword('');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MainTabs' }], // الانتقال إلى شريط التبويبات الرئيسي بعد تسجيل الدخول
+        });
       })
       .catch((error: any) => {
         Alert.alert('Login Error', error.message);
@@ -55,8 +60,7 @@ const LoginScreen = () => {
       </TouchableOpacity>
       <Button title="Logga in" onPress={handleLogin} color={colors.primary} />
       
-      {/* تعديل زر التنقل إلى شاشة التسجيل */}
-      <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen' as never)}>
+      <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
         <Text style={styles.registerLink}>Har du inget konto? Registrera dig</Text>
       </TouchableOpacity>
     </View>

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { firebase } from '../../firebaseConfig';
-import { useNavigation } from 'expo-router';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../../types';
 
 const colors = {
   primary: '#D60265',
@@ -10,13 +11,16 @@ const colors = {
 };
 
 export default function ProfileScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   // دالة تسجيل الخروج
   const handleLogout = () => {
     firebase.auth().signOut().then(() => {
       Alert.alert('تم', 'تم تسجيل الخروج بنجاح');
-      navigation.navigate('LoginScreen' as never); // ارجع لصفحة تسجيل الدخول
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'LoginScreen' }],
+      });
     }).catch((error: Error) => {
       Alert.alert('خطأ في تسجيل الخروج', error.message);
     });
@@ -28,7 +32,10 @@ export default function ProfileScreen() {
     if (user) {
       user.delete().then(() => {
         Alert.alert('تم', 'تم حذف الحساب بنجاح');
-        navigation.navigate('SignUpScreen' as never); // ارجع لصفحة التسجيل
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'SignUpScreen' }],
+        });
       }).catch((error: Error) => {
         Alert.alert('خطأ في حذف الحساب', error.message);
       });
@@ -81,6 +88,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: colors.background,
+    
   },
   title: {
     fontSize: 24,
@@ -91,22 +99,22 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    marginBottom: 10,
+    marginBottom: 20,
     color: '#000',
   },
   section: {
-    marginVertical: 15,
+    marginVertical: 5,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 20,
     color: '#000',
   },
   button: {
     paddingVertical: 12,
     borderRadius: 5,
-    marginBottom: 10,
+    marginBottom: 5,
     alignItems: 'center',
   },
   buttonText: {
@@ -116,7 +124,7 @@ const styles = StyleSheet.create({
   actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: 150,
   },
   deleteButton: {
     backgroundColor: 'red',
