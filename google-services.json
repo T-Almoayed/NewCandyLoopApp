@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "381555635155",
+    "project_id": "candyloop-f8567",
+    "storage_bucket": "candyloop-f8567.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:381555635155:android:180c332352bca44fb3b526",
+        "android_client_info": {
+          "package_name": "com.talmoayed.candyloopapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOuEjzlDY4hfsX2ncFcp1-BfBB9L9EFmQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
