@@ -1,49 +1,60 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, Alert, Text, StyleSheet } from 'react-native';
 import { firebase } from '../../firebaseConfig';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../types';
 
-const colors = {
-  primary: '#D60265', // اللون الرسمي لـ CandyLoop
-  background: '#f5f5f5',
-  inputBackground: '#ffffff',
-  text: '#000000',
-  buttonText: '#ffffff',
-};
+interface LoginScreenProps {
+  navigation: NavigationProp<RootStackParamList, 'LoginScreen'>;
+}
 
-const LoginScreen = () => {
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [emailOrPhone, setEmailOrPhone] = useState('');
+const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    if (!emailOrPhone || !password) {
-      Alert.alert('Error', 'Please enter email/phone and password.');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Fel', 'Ange e-post och lösenord');
       return;
     }
-    firebase.auth().signInWithEmailAndPassword(emailOrPhone, password)
-      .then(() => {
-        Alert.alert('Success', 'Logged in successfully');
-        setEmailOrPhone('');
-        setPassword('');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'MainTabs' }], // الانتقال إلى شريط التبويبات الرئيسي بعد تسجيل الدخول
-        });
-      })
-      .catch((error: any) => {
-        Alert.alert('Login Error', error.message);
+
+    try {
+      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+
+      if (user && !user.emailVerified) {
+        Alert.alert(
+          'Verifiera din e-post',
+          'Du måste verifiera din e-post för att logga in. Kontrollera din e-post och klicka på verifieringslänken.',
+          [
+            {
+              text: 'OK',
+              onPress: () => firebase.auth().signOut(),
+            },
+          ]
+        );
+        return;
+      }
+
+      console.log('Inloggning lyckades');
+      Alert.alert('Välkommen', 'Du är nu inloggad i appen');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }],
       });
+    } catch (error: any) {
+      console.error('Login error:', error.message);
+      Alert.alert('Inloggningsfel', error.message || 'Ett okänt fel inträffade');
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Logga in</Text>
       <TextInput
-        placeholder="E-postadress eller telefonnummer"
-        value={emailOrPhone}
-        onChangeText={setEmailOrPhone}
+        placeholder="E-post"
+        value={email}
+        onChangeText={setEmail}
         style={styles.input}
         keyboardType="email-address"
         autoCapitalize="none"
@@ -55,14 +66,13 @@ const LoginScreen = () => {
         style={styles.input}
         secureTextEntry
       />
-      <TouchableOpacity onPress={() => Alert.alert('Reset Password', 'Password reset link sent.')}>
-        <Text style={styles.forgotPassword}>Glömt ditt lösenord?</Text>
-      </TouchableOpacity>
-      <Button title="Logga in" onPress={handleLogin} color={colors.primary} />
-      
-      <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
-        <Text style={styles.registerLink}>Har du inget konto? Registrera dig</Text>
-      </TouchableOpacity>
+      <Button title="LOGGA IN" onPress={handleLogin} color="#D60265" />
+      <Text style={styles.registerText}>
+        Har du inget konto?{' '}
+        <Text style={styles.registerLink} onPress={() => navigation.navigate('SignUpScreen')}>
+          Registrera dig
+        </Text>
+      </Text>
     </View>
   );
 };
@@ -71,35 +81,33 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: colors.background,
     justifyContent: 'center',
+    backgroundColor: '#fff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    color: '#D60265',
     textAlign: 'center',
-    color: colors.primary,
+    marginBottom: 20,
   },
   input: {
     height: 50,
-    borderColor: colors.primary,
+    borderColor: '#ccc',
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 20,
-    backgroundColor: colors.inputBackground,
   },
-  forgotPassword: {
-    color: colors.primary,
-    textAlign: 'right',
-    marginBottom: 20,
+  registerText: {
+    marginTop: 20,
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#000',
   },
   registerLink: {
-    color: colors.primary,
-    textAlign: 'center',
-    marginTop: 10,
-    fontSize: 16,
+    color: '#D60265',
+    fontWeight: 'bold',
   },
 });
 

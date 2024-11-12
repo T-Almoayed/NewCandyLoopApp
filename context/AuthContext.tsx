@@ -1,16 +1,23 @@
 // context/AuthContext.tsx
-
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { firebase } from '../firebaseConfig';
 
 type AuthContextType = {
-  user: boolean;
-  setUser: (user: boolean) => void;
+  user: firebase.User | null;
+  setUser: (user: firebase.User | null) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<boolean>(false); // إعداد user كـ false بدايةً
+  const [user, setUser] = useState<firebase.User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+      setUser(user);
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, setUser }}>

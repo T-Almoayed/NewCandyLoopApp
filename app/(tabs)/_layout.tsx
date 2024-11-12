@@ -1,7 +1,8 @@
+// _layout.tsx
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AuthProvider, useAuth } from '../../context/AuthContext'; // تأكد من أن المسار صحيح
+import { AuthProvider, useAuth } from '../../context/AuthContext';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -13,7 +14,6 @@ const Stack = createNativeStackNavigator();
 
 function TabLayout() {
   const colorScheme = useColorScheme();
-  const { user } = useAuth();
 
   return (
     <Tabs

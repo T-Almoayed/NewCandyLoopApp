@@ -1,5 +1,4 @@
-// app/types.ts
-
+// types.ts
 export type RootStackParamList = {
   LoginScreen: undefined;
   SignUpScreen: undefined;
