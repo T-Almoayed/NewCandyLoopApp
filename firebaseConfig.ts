@@ -5,11 +5,11 @@ import 'firebase/compat/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyC1_D-mYzt8hldJGCcxnikQNASx2HcXwGw",
-  authDomain: "your-auth-domain.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-storage-bucket.appspot.com",
-  messagingSenderId: "your-messaging-sender-id",
-  appId: "your-app-id",
+  authDomain: "candyloop-f8567.firebaseapp.com",
+  projectId: "candyloop-f8567",
+  storageBucket: "candyloop-f8567.appspot.com",
+  messagingSenderId: "381555635155",
+  appId: "1:381555635155:android:180c332325bca44fb3b526",
 };
 
 if (!firebase.apps.length) {

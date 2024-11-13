@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Alert, Text, StyleSheet } from 'react-native';
-import { firebase } from '../../firebaseConfig';
+import { firebase, firestore } from '../../firebaseConfig';
 import { NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../types';
 
@@ -33,12 +33,21 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
 
       if (user) {
         await user.sendEmailVerification();
-        await firebase.firestore().collection('users').doc(user.uid).set({
+
+        // الحصول على kundnummer الأخير وزيادته بمقدار 1
+        const usersCollection = firestore.collection('users');
+        const querySnapshot = await usersCollection.orderBy('kundnummer', 'desc').limit(1).get();
+        const lastKundnummer = querySnapshot.empty ? 0 : querySnapshot.docs[0].data().kundnummer;
+        const newKundnummer = lastKundnummer + 1;
+
+        await usersCollection.doc(user.uid).set({
+          kundnummer: newKundnummer,
           firstName,
           lastName,
           email,
           phone,
         });
+
         Alert.alert(
           'Registrerad',
           'Ditt konto har skapats. Kontrollera din e-post för att verifiera kontot.',
