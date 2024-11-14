@@ -1,5 +1,4 @@
 // ProfileScreen.tsx
-
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { firebase, firestore } from '../../firebaseConfig';
@@ -12,7 +11,6 @@ const colors = {
   buttonText: '#ffffff',
 };
 
-// تأكد من وجود `export default` واحد فقط
 export default function ProfileScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [userData, setUserData] = useState({ kundnummer: '', name: '', phone: '', email: '' });
@@ -26,10 +24,10 @@ export default function ProfileScreen() {
           if (userDoc.exists) {
             const data = userDoc.data();
             setUserData({
-              kundnummer: user.uid,
+              kundnummer: data?.kundnummer || '',
               name: `${data?.firstName || ''} ${data?.lastName || ''}`,
               phone: data?.phone || '',
-              email: user.email || '',
+              email: data?.email || '',
             });
           } else {
             Alert.alert('Fel', 'Kunde inte hitta användarens data.');
@@ -58,27 +56,54 @@ export default function ProfileScreen() {
   };
 
   const handleDeleteAccount = () => {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      user.delete().then(() => {
-        Alert.alert('Kontot borttaget', 'Ditt konto har tagits bort.');
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'SignUpScreen' }],
-        });
-      }).catch((error: Error) => {
-        Alert.alert('Fel vid borttagning av konto', error.message);
-      });
-    }
+    Alert.alert(
+      'Bekräfta borttagning',
+      'Är du säker på att du vill ta bort kontot?',
+      [
+        {
+          text: 'Nej',
+          style: 'cancel',
+        },
+        {
+          text: 'Ja',
+          style: 'destructive',
+          onPress: () => {
+            const user = firebase.auth().currentUser;
+            if (user) {
+              user.delete().then(() => {
+                Alert.alert('Kontot borttaget', 'Ditt konto har tagits bort.');
+                navigation.reset({
+                  index: 0,
+                  routes: [{ name: 'SignUpScreen' }],
+                });
+              }).catch((error: Error) => {
+                Alert.alert('Fel vid borttagning av konto', error.message);
+              });
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Mina sidor</Text>
       <Text style={styles.label}>Kundnummer: {userData.kundnummer}</Text>
       <Text style={styles.label}>Namn: {userData.name}</Text>
       <Text style={styles.label}>E-post: {userData.email}</Text>
       <Text style={styles.label}>Mobilnr: {userData.phone}</Text>
+      
+      <Text style={styles.sectionTitle}>Refer a friend-belöningar</Text>
+      <TouchableOpacity style={[styles.button, styles.referButton]} onPress={() => navigation.navigate('ReferFriendScreen')}>
+        <Text style={styles.buttonText}>REFER A FRIEND</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.sectionTitle}>Mina kuponger</Text>
+      <TouchableOpacity style={[styles.button, styles.couponButton]} onPress={() => console.log('View Coupons')}>
+        <Text style={styles.buttonText}>VIEW COUPONS</Text>
+      </TouchableOpacity>
+
       <View style={styles.actionButtonsContainer}>
         <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
           <Text style={styles.buttonText}>LOGGA UT</Text>
@@ -106,8 +131,15 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 10,
     color: '#000',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+    marginTop: 20,
+    marginBottom: 10,
   },
   button: {
     paddingVertical: 12,
@@ -119,10 +151,16 @@ const styles = StyleSheet.create({
     color: colors.buttonText,
     fontWeight: 'bold',
   },
+  referButton: {
+    backgroundColor: colors.primary,
+  },
+  couponButton: {
+    backgroundColor: colors.primary,
+  },
   actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 20,
+    marginTop: 150,
   },
   deleteButton: {
     backgroundColor: 'red',

@@ -8,4 +8,5 @@ export type RootStackParamList = {
   OffersScreen: undefined;
   TopCustomersScreen: undefined;
   StoresScreen: undefined;
+  ReferFriendScreen: undefined; // إضافة ReferFriendScreen هنا
 };

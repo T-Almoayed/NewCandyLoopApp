@@ -1,16 +1,25 @@
-// _layout.tsx
 import React from 'react';
+import { View, Text, StyleSheet, Platform, ActivityIndicator } from 'react-native';
+import Constants from 'expo-constants';
+import { useFonts } from 'expo-font';
 import { Tabs } from 'expo-router';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AuthProvider } from '../../context/AuthContext';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-
 import LoginScreen from '../auth/LoginScreen';
 import SignUpScreen from '../auth/SignUpScreen';
 
 const Stack = createNativeStackNavigator();
+
+function CustomHeader() {
+  return (
+    <View style={styles.header}>
+      <Text style={styles.headerText}>CandyLoop</Text>
+    </View>
+  );
+}
 
 function TabLayout() {
   const colorScheme = useColorScheme();
@@ -19,11 +28,13 @@ function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
+        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tint, // قم بتغيير هذا السطر
+        header: () => <CustomHeader />,
         tabBarStyle: {
+          backgroundColor: '#FFF2F5',
           paddingBottom: 10,
-          paddingTop: 5,
-          height: 60,
+          paddingTop: 8,
+          height: 70,
         },
       }}
     >
@@ -77,6 +88,14 @@ function TabLayout() {
 }
 
 export default function Layout() {
+  const [fontsLoaded] = useFonts({
+    'luckybones-bold': require('../../assets/fonts/luckybones-bold.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return <ActivityIndicator size="large" color="#D60265" />;
+  }
+
   return (
     <AuthProvider>
       <Stack.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
@@ -87,3 +106,20 @@ export default function Layout() {
     </AuthProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    paddingTop: Platform.OS === 'android' ? Constants.statusBarHeight : 44,
+    height: 100,
+    backgroundColor: '#FFF2F5', // لون الخلفية مشابه لـ Hemköp
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  headerText: {
+    fontSize: 30,
+    fontFamily: 'luckybones-bold',
+    color: '#D60265',
+  },
+});

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Alert, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { firebase, firestore } from '../../firebaseConfig';
 import { NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../types';
+import { Ionicons } from '@expo/vector-icons';
 
 interface SignUpScreenProps {
   navigation: NavigationProp<RootStackParamList, 'SignUpScreen'>;
@@ -15,6 +16,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleSignUp = async () => {
     if (!firstName || !lastName || !email || !phone || !password || !confirmPassword) {
@@ -34,7 +37,6 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
       if (user) {
         await user.sendEmailVerification();
 
-        // الحصول على kundnummer الأخير وزيادته بمقدار 1
         const usersCollection = firestore.collection('users');
         const querySnapshot = await usersCollection.orderBy('kundnummer', 'desc').limit(1).get();
         const lastKundnummer = querySnapshot.empty ? 0 : querySnapshot.docs[0].data().kundnummer;
@@ -72,13 +74,13 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
         <TextInput
           placeholder="Förnamn"
           value={firstName}
-          onChangeText={setFirstName}
+          onChangeText={(text) => setFirstName(text.charAt(0).toUpperCase() + text.slice(1))}
           style={[styles.input, styles.halfInput]}
         />
         <TextInput
           placeholder="Efternamn"
           value={lastName}
-          onChangeText={setLastName}
+          onChangeText={(text) => setLastName(text.charAt(0).toUpperCase() + text.slice(1))}
           style={[styles.input, styles.halfInput]}
         />
       </View>
@@ -97,20 +99,30 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
         style={styles.input}
         keyboardType="phone-pad"
       />
-      <TextInput
-        placeholder="Lösenord"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
-      <TextInput
-        placeholder="Bekräfta lösenord"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        style={styles.input}
-        secureTextEntry
-      />
+      <View style={styles.passwordContainer}>
+        <TextInput
+          placeholder="Lösenord"
+          value={password}
+          onChangeText={setPassword}
+          style={styles.passwordInput}
+          secureTextEntry={!showPassword}
+        />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="#888" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.passwordContainer}>
+        <TextInput
+          placeholder="Bekräfta lösenord"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          style={styles.passwordInput}
+          secureTextEntry={!showConfirmPassword}
+        />
+        <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+          <Ionicons name={showConfirmPassword ? 'eye-off' : 'eye'} size={24} color="#888" />
+        </TouchableOpacity>
+      </View>
       <Button title="REGISTRERA" onPress={handleSignUp} color="#D60265" />
       <Text style={styles.loginText}>
         Har du redan ett konto?{' '}
@@ -150,6 +162,19 @@ const styles = StyleSheet.create({
   },
   halfInput: {
     width: '48%',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 50,
   },
   loginText: {
     marginTop: 20,
