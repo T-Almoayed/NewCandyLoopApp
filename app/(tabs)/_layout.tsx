@@ -28,7 +28,7 @@ function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tint, // قم بتغيير هذا السطر
+        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tint,
         header: () => <CustomHeader />,
         tabBarStyle: {
           backgroundColor: '#FFF2F5',
@@ -98,7 +98,7 @@ export default function Layout() {
 
   return (
     <AuthProvider>
-      <Stack.Navigator initialRouteName="LoginScreen" screenOptions={{ headerShown: false }}>
+      <Stack.Navigator initialRouteName="MainTabs" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="LoginScreen" component={LoginScreen} />
         <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
         <Stack.Screen name="MainTabs" component={TabLayout} />
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   header: {
     paddingTop: Platform.OS === 'android' ? Constants.statusBarHeight : 44,
     height: 100,
-    backgroundColor: '#FFF2F5', // لون الخلفية مشابه لـ Hemköp
+    backgroundColor: '#FFF2F5',
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 1,

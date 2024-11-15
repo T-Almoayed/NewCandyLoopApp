@@ -4,7 +4,7 @@ export type RootStackParamList = {
   SignUpScreen: undefined;
   MainTabs: undefined; // يمثل الشاشات في الشريط السفلي
   HomeScreen: undefined;
-  ProfileScreen: undefined;
+  Profile: undefined;
   OffersScreen: undefined;
   TopCustomersScreen: undefined;
   StoresScreen: undefined;

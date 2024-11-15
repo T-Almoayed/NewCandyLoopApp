@@ -1,9 +1,9 @@
-// ProfileScreen.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { firebase, firestore } from '../../firebaseConfig';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../types';
+import { useAuth } from '../../context/AuthContext';
 
 const colors = {
   primary: '#D60265',
@@ -11,14 +11,26 @@ const colors = {
   buttonText: '#ffffff',
 };
 
-export default function ProfileScreen() {
+export default function Profile() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const { user } = useAuth(); // يحصل على بيانات المستخدم من AuthContext
   const [userData, setUserData] = useState({ kundnummer: '', name: '', phone: '', email: '' });
 
+  // التحقق من حالة تسجيل الدخول
   useEffect(() => {
-    const fetchUserData = async () => {
-      const user = firebase.auth().currentUser;
-      if (user) {
+    if (!user) {
+      // إذا لم يكن المستخدم مسجلاً الدخول، يتم توجيهه إلى شاشة تسجيل الدخول
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'LoginScreen' }],
+      });
+    }
+  }, [user, navigation]);
+
+  // جلب بيانات المستخدم من Firestore
+  useEffect(() => {
+    if (user) {
+      const fetchUserData = async () => {
         try {
           const userDoc = await firestore.collection('users').doc(user.uid).get();
           if (userDoc.exists) {
@@ -36,13 +48,13 @@ export default function ProfileScreen() {
           console.error('Error fetching user data:', error);
           Alert.alert('Fel', 'Det gick inte att hämta användarens data.');
         }
-      } else {
-        Alert.alert('Fel', 'Ingen användare är inloggad.');
-      }
-    };
-    fetchUserData();
-  }, []);
+      };
 
+      fetchUserData();
+    }
+  }, [user]);
+
+  // تسجيل الخروج
   const handleLogout = () => {
     firebase.auth().signOut().then(() => {
       Alert.alert('Utloggad', 'Du har loggats ut.');
@@ -55,22 +67,19 @@ export default function ProfileScreen() {
     });
   };
 
+  // حذف الحساب
   const handleDeleteAccount = () => {
     Alert.alert(
       'Bekräfta borttagning',
       'Är du säker på att du vill ta bort kontot?',
       [
-        {
-          text: 'Nej',
-          style: 'cancel',
-        },
+        { text: 'Nej', style: 'cancel' },
         {
           text: 'Ja',
           style: 'destructive',
           onPress: () => {
-            const user = firebase.auth().currentUser;
             if (user) {
-              user.delete().then(() => {
+              firebase.auth().currentUser?.delete().then(() => {
                 Alert.alert('Kontot borttaget', 'Ditt konto har tagits bort.');
                 navigation.reset({
                   index: 0,
@@ -93,7 +102,7 @@ export default function ProfileScreen() {
       <Text style={styles.label}>Namn: {userData.name}</Text>
       <Text style={styles.label}>E-post: {userData.email}</Text>
       <Text style={styles.label}>Mobilnr: {userData.phone}</Text>
-      
+
       <Text style={styles.sectionTitle}>Refer a friend-belöningar</Text>
       <TouchableOpacity style={[styles.button, styles.referButton]} onPress={() => navigation.navigate('ReferFriendScreen')}>
         <Text style={styles.buttonText}>REFER A FRIEND</Text>
@@ -160,7 +169,7 @@ const styles = StyleSheet.create({
   actionButtonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 150,
+    marginTop: 100,
   },
   deleteButton: {
     backgroundColor: 'red',

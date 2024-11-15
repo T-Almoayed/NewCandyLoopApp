@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, Text, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Alert, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { firebase } from '../../firebaseConfig';
 import { NavigationProp } from '@react-navigation/native';
 import { RootStackParamList } from '../../types';
+import { Ionicons } from '@expo/vector-icons';
 
 interface LoginScreenProps {
   navigation: NavigationProp<RootStackParamList, 'LoginScreen'>;
@@ -11,6 +12,7 @@ interface LoginScreenProps {
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -37,7 +39,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       }
 
       console.log('Inloggning lyckades');
-      Alert.alert('Välkommen', 'Du är nu inloggad i appen');
+      Alert.alert('Välkommen till CandyLoop');
       navigation.reset({
         index: 0,
         routes: [{ name: 'MainTabs' }],
@@ -50,7 +52,16 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* زر Tillbaka في أعلى يسار الشاشة */}
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('MainTabs')}>
+        <Ionicons name="arrow-back" size={24} color="#D60265" />
+        <Text style={styles.backButtonText}>Tillbaka</Text>
+      </TouchableOpacity>
+
+      {/* عنوان تسجيل الدخول */}
       <Text style={styles.title}>Logga in</Text>
+
+      {/* حقل إدخال البريد الإلكتروني */}
       <TextInput
         placeholder="E-post"
         value={email}
@@ -59,14 +70,30 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         keyboardType="email-address"
         autoCapitalize="none"
       />
-      <TextInput
-        placeholder="Lösenord"
-        value={password}
-        onChangeText={setPassword}
-        style={styles.input}
-        secureTextEntry
-      />
+
+      {/* حقل إدخال كلمة المرور مع خيار عرض/إخفاء */}
+      <View style={styles.passwordContainer}>
+        <TextInput
+          placeholder="Lösenord"
+          value={password}
+          onChangeText={setPassword}
+          style={styles.passwordInput}
+          secureTextEntry={!showPassword}
+        />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Ionicons
+            name={showPassword ? 'eye' : 'eye-off'}
+            size={24}
+            color="#ccc"
+            style={styles.eyeIcon}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* زر تسجيل الدخول */}
       <Button title="LOGGA IN" onPress={handleLogin} color="#D60265" />
+
+      {/* نص تسجيل حساب جديد */}
       <Text style={styles.registerText}>
         Har du inget konto?{' '}
         <Text style={styles.registerLink} onPress={() => navigation.navigate('SignUpScreen')}>
@@ -81,8 +108,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: 'center',
     backgroundColor: '#fff',
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 20,
+    position: 'absolute',
+    top: 40,
+    left: 10,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: '#D60265',
+    marginLeft: 8,
   },
   title: {
     fontSize: 24,
@@ -90,6 +130,7 @@ const styles = StyleSheet.create({
     color: '#D60265',
     textAlign: 'center',
     marginBottom: 20,
+    marginTop: 80, // لضمان وجود مساحة بعد الزر
   },
   input: {
     height: 50,
@@ -98,6 +139,22 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 20,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 50,
+  },
+  eyeIcon: {
+    padding: 5,
   },
   registerText: {
     marginTop: 20,
