@@ -39,7 +39,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       }
 
       console.log('Inloggning lyckades');
-      Alert.alert('Välkommen till CandyLoop');
       navigation.reset({
         index: 0,
         routes: [{ name: 'MainTabs' }],
@@ -55,7 +54,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
       {/* زر Tillbaka في أعلى يسار الشاشة */}
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('MainTabs')}>
         <Ionicons name="arrow-back" size={24} color="#D60265" />
-        <Text style={styles.backButtonText}>Tillbaka</Text>
+        <Text style={styles.backButtonText}>Startsida</Text>
       </TouchableOpacity>
 
       {/* عنوان تسجيل الدخول */}

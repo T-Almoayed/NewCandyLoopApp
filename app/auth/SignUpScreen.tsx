@@ -69,16 +69,7 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* زر Tillbaka */}
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('MainTabs')}>
-        <Ionicons name="arrow-back" size={24} color="#D60265" />
-        <Text style={styles.backButtonText}>Tillbaka</Text>
-      </TouchableOpacity>
-
-      {/* عنوان الصفحة */}
       <Text style={styles.title}>Registrera dig</Text>
-
-      {/* الحقول */}
       <View style={styles.row}>
         <TextInput
           placeholder="Förnamn"
@@ -147,21 +138,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    justifyContent: 'center',
     backgroundColor: '#fff',
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-    position: 'absolute',
-    top: 40,
-    left: 10,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#D60265',
-    marginLeft: 8,
   },
   title: {
     fontSize: 24,
@@ -169,7 +147,6 @@ const styles = StyleSheet.create({
     color: '#D60265',
     textAlign: 'center',
     marginBottom: 20,
-    marginTop: 80,
   },
   row: {
     flexDirection: 'row',
