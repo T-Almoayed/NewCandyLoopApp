@@ -49,6 +49,24 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     }
   };
 
+  const handleResetPassword = async () => {
+    if (!email) {
+      Alert.alert('Fel', 'Ange din e-postadress för att återställa lösenordet.');
+      return;
+    }
+
+    try {
+      await firebase.auth().sendPasswordResetEmail(email);
+      Alert.alert(
+        'Återställ lösenord',
+        'Ett e-postmeddelande för återställning har skickats till din e-postadress.'
+      );
+    } catch (error: any) {
+      console.error('Password reset error:', error.message);
+      Alert.alert('Fel vid återställning', error.message || 'Ett okänt fel inträffade.');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('MainTabs')}>
@@ -77,6 +95,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
           <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={24} color="#ccc" style={styles.eyeIcon} />
         </TouchableOpacity>
       </View>
+      {/* Forgot Password */}
+      <TouchableOpacity onPress={handleResetPassword}>
+        <Text style={styles.forgotPasswordText}>Har du glömt ditt lösenord?</Text>
+      </TouchableOpacity>
       <Button title="LOGGA IN" onPress={handleLogin} color="#D60265" />
       <Text style={styles.registerText}>
         Har du inget konto?{' '}
@@ -94,9 +116,10 @@ const styles = StyleSheet.create({
   backButtonText: { fontSize: 16, color: '#D60265', marginLeft: 8 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#D60265', textAlign: 'center', marginBottom: 20, marginTop: 80 },
   input: { height: 50, borderColor: '#ccc', borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, marginBottom: 20 },
-  passwordContainer: { flexDirection: 'row', alignItems: 'center', borderColor: '#ccc', borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, marginBottom: 20 },
+  passwordContainer: { flexDirection: 'row', alignItems: 'center', borderColor: '#ccc', borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, marginBottom: 10 },
   passwordInput: { flex: 1, height: 50 },
   eyeIcon: { padding: 5 },
+  forgotPasswordText: { color: '#D60265', fontWeight: 'bold', marginBottom: 20, textAlign: 'right' },
   registerText: { marginTop: 20, textAlign: 'center', fontSize: 16, color: '#000' },
   registerLink: { color: '#D60265', fontWeight: 'bold' },
 });
