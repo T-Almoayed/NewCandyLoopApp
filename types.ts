@@ -1,12 +1,11 @@
-// types.ts
 export type RootStackParamList = {
   LoginScreen: undefined;
   SignUpScreen: undefined;
-  MainTabs: undefined; // يمثل الشاشات في الشريط السفلي
-  HomeScreen: undefined;
-  Profile: undefined;
+  MainTabs: undefined;
+  Profile: undefined; // تأكد من أن هذا موجود
   OffersScreen: undefined;
   TopCustomersScreen: undefined;
   StoresScreen: undefined;
-  ReferFriendScreen: undefined; // إضافة ReferFriendScreen هنا
+  ReferFriendScreen: undefined;
+  index: undefined;
 };

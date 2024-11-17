@@ -14,10 +14,10 @@ const SplashScreen = () => {
       easing: Easing.bounce,
       useNativeDriver: true,
     }).start(() => {
-      // Navigate to the Login screen after the animation
+      // Navigate to the main screen after animation
       setTimeout(() => {
-        (navigation as any).navigate('LoginScreen');
-      }, 2000);
+        (navigation as any).replace('MainTabs'); // Use replace instead of navigate
+      }, 1000);
     });
   }, []);
 

@@ -10,6 +10,8 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import LoginScreen from '../auth/LoginScreen';
 import SignUpScreen from '../auth/SignUpScreen';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -33,8 +35,8 @@ function TabLayout() {
         tabBarStyle: {
           backgroundColor: '#FFF2F5',
           paddingBottom: 10,
-          paddingTop: 8,
-          height: 70,
+          paddingTop: 5,
+          height: 80,
         },
       }}
     >
@@ -57,14 +59,18 @@ function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="top-customers"
-        options={{
-          title: 'Toppkunder',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'star' : 'star-outline'} color={color} />
-          ),
-        }}
+  name="top-customers"
+  options={{
+    title: 'Toppkunder',
+    tabBarIcon: ({ color, focused }) => (
+      <MaterialCommunityIcons
+        name={focused ? 'rocket-launch' : 'rocket-launch-outline'}
+        size={30} // حجم الأيقونة
+        color={color} // لون الأيقونة
       />
+    ),
+  }}
+/>
       <Tabs.Screen
         name="stores"
         options={{
@@ -75,7 +81,7 @@ function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="Profile"
         options={{
           title: 'Mina Sidor',
           tabBarIcon: ({ color, focused }) => (
