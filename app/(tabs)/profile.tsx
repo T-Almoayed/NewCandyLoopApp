@@ -1,139 +1,67 @@
 /**
  * الملف: Profile.tsx
  * 
- * هذا الملف يحتوي على الصفحة الخاصة بملف المستخدم في تطبيق CandyLoop، حيث تعرض هذه الصفحة بيانات المستخدم
- * مثل الرقم الشخصي (kundnummer)، الاسم، رقم الهاتف، والبريد الإلكتروني. كما يحتوي على خيارات لتسجيل الخروج،
- * حذف الحساب، والاطلاع على العروض والكوبونات المتعلقة بالمستخدم.
- * 
- * الأجزاء الرئيسية في الصفحة:
- * - استرجاع بيانات المستخدم من قاعدة البيانات Firebase وعرضها.
- * - إمكانية حذف الحساب مع تنبيه لتأكيد الحذف.
- * - إمكانية تسجيل الخروج مع تنبيه لتأكيد الخروج.
- * - روابط لصفحات "إحالة صديق" و "مراقبة الكوبونات".
- * - التعامل مع التنبيهات الخاصة بمختلف العمليات.
- * 
- * يعرض هذا الملف المعلومات بناءً على حالة تسجيل دخول المستخدم، ويجب أن يكون المستخدم قد سجل دخوله باستخدام Firebase.
- * إذا لم يكن المستخدم قد سجل دخوله، فسيتم إعادة توجيهه إلى شاشة التسجيل أو تسجيل الدخول.
+ * هذا الملف يحتوي على الصفحة الخاصة بملف المستخدم في تطبيق CandyLoop.
  */
 
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { firebase, firestore } from '../../firebaseConfig'; // استيراد Firebase والFirestore لإدارة المستخدمين.
-import { useNavigation, NavigationProp } from '@react-navigation/native'; // استخدام التنقل بين الصفحات
-import { RootStackParamList } from '../../types'; // تعريف قائمة الصفحات للتنقل.
-import { useAuth } from '../../context/AuthContext'; // جلب البيانات المتعلقة بالمستخدم من سياق التسجيل.
+import { firebase, firestore } from '../../firebaseConfig'; // استيراد Firebase والFirestore.
+import { useNavigation, NavigationProp } from '@react-navigation/native'; // التنقل بين الصفحات.
+import { RootStackParamList } from '../../types'; // تعريف قائمة الصفحات.
+import { useAuth } from '../../context/AuthContext'; // جلب بيانات المستخدم.
 
 const colors = {
-  primary: '#D60265', // اللون الأساسي للتطبيق
-  background: '#f5f5f5', // الخلفية
-  buttonText: '#ffffff', // نص الأزرار
+  primary: '#D60265', // اللون الأساسي.
+  background: '#f5f5f5', // الخلفية.
+  buttonText: '#ffffff', // نص الأزرار.
 };
 
 export default function Profile() {
-  // تحديد التنقل في التطبيق
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
-  // جلب بيانات المستخدم من سياق التسجيل
   const { user } = useAuth();
 
-  // استخدام state لتخزين بيانات المستخدم
   const [userData, setUserData] = useState({ kundnummer: '', name: '', phone: '', email: '' });
 
-  /**
-   * تخصيص التنبيه لعرض رسالة تأكيد بألوان خاصة
-   * @param {string} title - عنوان التنبيه
-   * @param {string} message - نص الرسالة
-   * @param {Function} onConfirm - وظيفة سيتم استدعاؤها عند تأكيد العملية
-   */
   const showCustomAlert = (title: string, message: string, onConfirm: () => void) => {
     Alert.alert(
       title,
       message,
       [
-        {
-          text: 'Nej', // خيار لإلغاء العملية
-          style: 'cancel',
-        },
-        {
-          text: 'Ja', // خيار لتأكيد العملية
-          style: 'destructive',
-          onPress: onConfirm, // استدعاء الدالة عند الضغط على "نعم"
-        },
+        { text: 'Nej', style: 'cancel' },
+        { text: 'Ja', style: 'destructive', onPress: onConfirm },
       ],
-      {
-        cancelable: true, // السماح بإلغاء التنبيه
-      }
+      { cancelable: true }
     );
   };
 
-  /**
-   * وظيفة لحذف الحساب بعد التأكيد من المستخدم
-   * ستتم العملية عن طريق Firebase
-   */
   const handleDeleteAccount = () => {
-    showCustomAlert(
-      'Bekräfta borttagning', // عنوان التنبيه
-      'Är du säker på att du vill ta bort kontot?', // رسالة التنبيه
-      () => {
-        if (user) {
-          firebase.auth().currentUser?.delete().then(() => { // حذف حساب المستخدم
-            Alert.alert(
-              'Kontot borttaget',
-              'Ditt konto har tagits bort.',
-              [{ text: 'OK', style: 'default' }],
-              {
-                cancelable: true,
-              }
-            );
-            navigation.reset({ // إعادة التوجيه إلى صفحة التسجيل بعد الحذف
-              index: 0,
-              routes: [{ name: 'SignUpScreen' }],
-            });
-          }).catch((error: Error) => {
-            Alert.alert('Fel vid borttagning av konto', error.message); // في حال حدوث خطأ
-          });
-        }
+    showCustomAlert('Bekräfta borttagning', 'Är du säker på att du vill ta bort kontot?', () => {
+      if (user) {
+        firebase.auth().currentUser?.delete().then(() => {
+          Alert.alert('Kontot borttaget', 'Ditt konto har tagits bort.', [{ text: 'OK' }]);
+          navigation.reset({ index: 0, routes: [{ name: 'SignUpScreen' }] });
+        }).catch((error: Error) => {
+          Alert.alert('Fel vid borttagning av konto', error.message);
+        });
       }
-    );
+    });
   };
 
-  /**
-   * وظيفة لتسجيل الخروج وإعادة التوجيه إلى شاشة Mina Sidor
-   */
   const handleLogout = () => {
     firebase.auth().signOut().then(() => {
-      Alert.alert(
-        'Utloggad',
-        'Du har loggats ut.',
-        [
-          {
-            text: 'OK',
-            style: 'default',
-          },
-        ],
-        {
-          cancelable: true,
-        }
-      );
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'MainTabs' }], // إعادة التوجيه إلى الشاشة الرئيسية
-      });
+      Alert.alert('Utloggad', 'Du har loggats ut.', [{ text: 'OK' }]);
+      navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
     }).catch((error: Error) => {
       Alert.alert('Fel vid utloggning', error.message);
     });
   };
-  
 
-  /**
-   * استخدام useEffect لجلب بيانات المستخدم من قاعدة بيانات Firebase
-   * وتحديث حالة الواجهة عند تحميل البيانات
-   */
   useEffect(() => {
-    if (user) { // التأكد من وجود المستخدم
+    if (user) {
       const fetchUserData = async () => {
         try {
-          const userDoc = await firestore.collection('users').doc(user.uid).get(); // جلب بيانات المستخدم
+          const userDoc = await firestore.collection('users').doc(user.uid).get();
           if (userDoc.exists) {
             const data = userDoc.data();
             setUserData({
@@ -143,43 +71,44 @@ export default function Profile() {
               email: data?.email || '',
             });
           } else {
-            Alert.alert('Fel', 'Kunde inte hitta användarens data.'); // إذا لم يتم العثور على البيانات
+            Alert.alert('Fel', 'Kunde inte hitta användarens data.');
           }
         } catch (error) {
           console.error('Error fetching user data:', error);
-          Alert.alert('Fel', 'Det gick inte att hämta användarens data.'); // في حال حدوث خطأ في جلب البيانات
+          Alert.alert('Fel', 'Det gick inte att hämta användarens data.');
         }
       };
 
       fetchUserData();
-    } else { // إعادة التوجيه إلى صفحة تسجيل الدخول إذا لم يكن هناك مستخدم
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'LoginScreen' }],
-      });
+    } else {
+      navigation.reset({ index: 0, routes: [{ name: 'LoginScreen' }] });
     }
-  }, [user]); // إعادة تنفيذ الوظيفة إذا تغيرت بيانات المستخدم
+  }, [user]);
 
   return (
     <View style={styles.container}>
-      {/* عرض بيانات المستخدم */}
       <Text style={styles.label}>Kundnummer: {userData.kundnummer}</Text>
       <Text style={styles.label}>Namn: {userData.name}</Text>
       <Text style={styles.label}>E-post: {userData.email}</Text>
       <Text style={styles.label}>Mobilnr: {userData.phone}</Text>
 
       <Text style={styles.sectionTitle}>Refer a friend-belöningar</Text>
-      <TouchableOpacity style={[styles.button, styles.referButton]} onPress={() => navigation.navigate('ReferFriendScreen')}>
+      <TouchableOpacity
+        style={[styles.button, styles.referButton]}
+        onPress={() => navigation.navigate('ReferFriendScreen')}
+      >
         <Text style={styles.buttonText}>REFER A FRIEND</Text>
       </TouchableOpacity>
 
       <Text style={styles.sectionTitle}>Mina kuponger</Text>
-      <TouchableOpacity style={[styles.button, styles.couponButton]} onPress={() => console.log('Visa kuponger')}>
+      <TouchableOpacity
+        style={[styles.button, styles.couponButton]}
+        onPress={() => navigation.navigate('MinaKuponger')} // التنقل إلى MinaKuponger
+      >
         <Text style={styles.buttonText}>VISA KUPONGER</Text>
       </TouchableOpacity>
 
       <View style={styles.actionButtonsContainer}>
-        {/* أزرار تسجيل الخروج وحذف الحساب */}
         <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
           <Text style={styles.buttonText}>LOGGA UT</Text>
         </TouchableOpacity>
@@ -191,7 +120,6 @@ export default function Profile() {
   );
 }
 
-// تحديد أنماط الصفحة
 const styles = StyleSheet.create({
   container: {
     flex: 1,

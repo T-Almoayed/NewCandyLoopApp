@@ -8,4 +8,6 @@ export type RootStackParamList = {
   StoresScreen: undefined;
   ReferFriendScreen: undefined;
   index: undefined;
+  MinaKuponger: undefined; // أضف هذه الشاشة
+
 };

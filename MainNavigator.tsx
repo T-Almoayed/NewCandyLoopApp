@@ -1,12 +1,13 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
 import SplashScreen from './SplashScreen';
 import LoginScreen from './app/auth/LoginScreen';
 import SignUpScreen from './app/auth/SignUpScreen';
 import Layout from './app/_layout';
-import Profile from './app/(tabs)/Profile'; // تأكد من صحة المسار
+import Profile from './app/(tabs)/Profile';
+import MinaKuponger from './app/MinaKuponger'; // إضافة MinaKuponger هنا
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 export default function MainNavigator() {
   return (
@@ -15,7 +16,8 @@ export default function MainNavigator() {
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
       <Stack.Screen name="MainTabs" component={Layout} />
-      <Stack.Screen name="Profile" component={Profile} /> {/* تأكد من إضافة Profile هنا */}
+      <Stack.Screen name="Profile" component={Profile} />
+      <Stack.Screen name="MinaKuponger" component={MinaKuponger} /> {/* إضافة الشاشة */}
     </Stack.Navigator>
   );
 }
