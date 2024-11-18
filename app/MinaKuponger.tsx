@@ -34,13 +34,13 @@ export default function MinaKuponger() {
             selectedButton === 'Giltiga' && styles.activeButton,
           ]}
           onPress={() => handlePress('Giltiga')}
-        >
-          <Text
+            >
+           <Text
             style={[
               styles.buttonText,
               selectedButton === 'Giltiga' && styles.activeButtonText,
             ]}
-          >
+            >
             Giltiga
           </Text>
         </TouchableOpacity>
@@ -67,9 +67,9 @@ export default function MinaKuponger() {
       <Text style={styles.noCouponsText}>Inga kuponger tillgängliga.</Text>
     </View>
   );
-}
+  }
 
-const styles = StyleSheet.create({
+  const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFF2F5',
@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#FFF2F5',
     alignItems: 'center',
+
   },
   buttonText: {
     fontSize: 16,
@@ -112,6 +113,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
+    
   },
   updateButtonText: {
     color: '#FFF',
