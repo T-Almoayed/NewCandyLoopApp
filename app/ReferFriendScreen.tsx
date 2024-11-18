@@ -1,140 +1,138 @@
 /**
  * الملف: ReferFriendScreen.tsx
  * 
- * هذه الصفحة تعرض للمستخدم رابط الإحالة الخاص به الذي يمكنه مشاركته مع الآخرين. 
- * كما تعرض قائمة بأصدقائه الذين قاموا بالتسجيل عبر رابط الإحالة ولم يقوموا بعد بتنفيذ الشراء الأول.
- * عند إتمام عملية الشراء لأول مرة من قبل أي صديق، يتم تحديث القائمة لإظهار ذلك.
- * 
- * الأجزاء الرئيسية في الصفحة:
- * - إنشاء رابط إحالة فريد لكل مستخدم.
- * - جلب بيانات الإحالات من قاعدة بيانات Firebase وعرضها في الوقت الفعلي باستخدام Listener.
- * - القدرة على نسخ رابط الإحالة إلى الحافظة.
- * - عرض قائمة "في الانتظار" التي تحتوي على أسماء الأصدقاء الذين سجلوا عبر رابط الإحالة.
- * 
- * الصفحة مرتبطة بصفحة `Profile` في التطبيق حيث يمكن للمستخدم الدخول إلى هذه الصفحة من خلال التنقل.
- * كما أن هذه الصفحة تعتمد على Firebase لجلب البيانات المرتبطة بالإحالات.
+ * الهدف:
+ * - عرض رابط الإحالة الخاص بالمستخدم.
+ * - جلب قائمة الأصدقاء الذين سجلوا عبر رابط الإحالة ولم يكملوا أول عملية شراء.
+ * - تحديث البيانات في الوقت الفعلي باستخدام Firestore.
  */
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Clipboard, Share } from 'react-native';
-import { Ionicons } from '@expo/vector-icons'; // لإضافة الأيقونات
-import { useNavigation } from '@react-navigation/native';
-import { firebase, firestore } from '../firebaseConfig';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Share } from 'react-native'; // إضافة ActivityIndicator وShare
+import { Ionicons } from '@expo/vector-icons'; // الأيقونات
+import { firebase, firestore } from '../firebaseConfig'; // Firebase
 
-// الألوان المستخدمة في التطبيق
+// الألوان المستخدمة
 const colors = {
-  primary: '#D60265', // اللون الأساسي للتطبيق
-  background: '#FFF2F5', // الخلفية
-  buttonText: '#FFFFFF', // نص الأزرار
+  primary: '#D60265', // اللون الأساسي
+  background: '#FFF2F5', // لون الخلفية
+  buttonText: '#FFFFFF', // لون نص الأزرار
   linkBackground: '#F5F5F5', // خلفية الرابط
-  linkText: '#333333', // نص الرابط
-  copyButton: '#4CAF50', // زر النسخ
-  shareButton: '#2196F3', // زر المشاركة
+  linkText: '#333333', // لون النص
+  copyButton: '#4CAF50', // لون زر النسخ
+  shareButton: '#2196F3', // لون زر المشاركة
 };
 
 export default function ReferFriendScreen() {
-  const navigation = useNavigation(); // تحديد التنقل بين الصفحات
-  const [referralLink, setReferralLink] = useState(''); // حالة لتخزين رابط الإحالة
-  const [inProgressList, setInProgressList] = useState([]); // حالة لتخزين قائمة الأصدقاء في الانتظار
-  const [isLoading, setIsLoading] = useState(true); // حالة لتحديد إذا كانت البيانات ما زالت محملة
+  const [referralLink, setReferralLink] = useState(''); // رابط الإحالة
+  const [inProgressList, setInProgressList] = useState([]); // قائمة الأصدقاء
+  const [isLoading, setIsLoading] = useState(true); // حالة التحميل
 
-  // دالة لاستخراج بيانات الإحالة من Firebase
+  // جلب البيانات من Firestore
   useEffect(() => {
-    const fetchReferralLink = async () => {
-      const user = firebase.auth().currentUser; // جلب بيانات المستخدم الحالي
+    const fetchReferralData = () => {
+      const user = firebase.auth().currentUser;
+
       if (user) {
-        const referralPath = `https://candyloop.com/referral/${user.uid}`; // إنشاء رابط الإحالة بناءً على UID المستخدم
-        setReferralLink(referralPath); // تحديث رابط الإحالة
+        console.log("Current User UID:", user.uid); // عرض معرف المستخدم في السجلات
+
+        // إنشاء رابط الإحالة
+        const referralPath = `https://candyloop.com/referral/${user.uid}`;
+        setReferralLink(referralPath);
+
+        // Listener لجلب البيانات في الوقت الفعلي
+        const referralRef = firestore.collection('referrals').doc(user.uid);
+
+        const unsubscribe = referralRef.onSnapshot(
+          (doc) => {
+            if (doc.exists) {
+              const data = doc.data();
+              console.log("Data fetched from Firestore:", data); // عرض البيانات في السجلات
+              setInProgressList(data?.inProgress || []); // تحديث قائمة inProgress
+            } else {
+              console.log("No document found for this user."); // إذا لم يتم العثور على مستند
+            }
+            setIsLoading(false); // إيقاف حالة التحميل
+          },
+          (error) => {
+            console.error("Error fetching Firestore data:", error); // عرض الخطأ في حال حدوث مشكلة
+            setIsLoading(false);
+          }
+        );
+
+        return () => unsubscribe(); // إلغاء الاشتراك عند مغادرة الشاشة
+      } else {
+        console.log("User is not authenticated.");
+        setIsLoading(false);
       }
     };
 
-    const fetchReferralStatus = async () => {
-      const user = firebase.auth().currentUser; // جلب بيانات المستخدم الحالي
-      if (user) {
-        const referrals = await firestore.collection('referrals').doc(user.uid).get(); // جلب بيانات الإحالات
-        if (referrals.exists) {
-          const data = referrals.data(); // جلب بيانات الإحالات
-          setInProgressList(data?.inProgress || []); // تحديث قائمة الأصدقاء في الانتظار
-        }
-      }
-      setIsLoading(false); // إيقاف حالة التحميل
-    };
+    fetchReferralData();
+  }, []);
 
-    fetchReferralLink(); // استدعاء دالة جلب رابط الإحالة
-    fetchReferralStatus(); // استدعاء دالة جلب بيانات الإحالات
-  }, []); // يتم تنفيذ هذا التابع مرة واحدة عند تحميل الصفحة
-
-  /**
-   * دالة لنسخ رابط الإحالة إلى الحافظة
-   * ستقوم بنسخ الرابط وإظهار تنبيه للمستخدم
-   */
+  // دالة نسخ الرابط
   const handleCopyLink = () => {
-    Clipboard.setString(referralLink); // نسخ الرابط إلى الحافظة
-    alert('Referral link copied to clipboard!'); // عرض تنبيه يفيد بنسخ الرابط
+    navigator.clipboard.writeText(referralLink);
+    Alert.alert('Kopierad!', 'Referenslänk kopierad till urklipp!');
   };
 
-  /**
-   * دالة لمشاركة رابط الإحالة عبر التطبيقات الاجتماعية
-   */
+  // دالة مشاركة الرابط
   const handleShareLink = async () => {
     try {
       await Share.share({
-        message: `Join CandyLoop using my referral link: ${referralLink}`, // مشاركة الرابط مع رسالة
+        message: `Gå med i CandyLoop med min referenslänk: ${referralLink}`,
       });
     } catch (error) {
-      alert('Error sharing the link'); // في حال حدوث خطأ أثناء المشاركة
+      Alert.alert('Fel', 'Kunde inte dela länken.');
     }
   };
 
   return (
     <View style={styles.container}>
-      {/* زر العودة إلى الصفحة السابقة */}
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
-        <Text style={styles.backButton}>Tillbaka</Text>
-      </TouchableOpacity>
-
       {/* عنوان الصفحة */}
       <Text style={styles.title}>Refer a Friend-belöningar</Text>
-      {/* وصف كيفية استخدام رابط الإحالة */}
+
+      {/* وصف الإحالة */}
       <Text style={styles.description}>
         Få belöningar genom att bjuda in dina vänner till att gå med i{' '}
         <Text style={styles.candyLoopText}>CandyLoop</Text>. {'\n'}
         Du får en kupong när de registrerar sig via din länk och gör sitt första köp.
       </Text>
 
-      {/* عرض رابط الإحالة */}
+      {/* رابط الإحالة */}
       <View style={styles.linkContainer}>
         <Text style={styles.label}>Dela din referenslänk:</Text>
         <View style={styles.linkWrapper}>
           <Text style={styles.linkText}>{referralLink}</Text>
           <View style={styles.buttonGroup}>
-            {/* زر النسخ */}
             <TouchableOpacity onPress={handleCopyLink} style={styles.copyButton}>
-              <Ionicons name="copy-outline" size={18} color="#FFF" style={styles.icon} />
+              <Ionicons name="copy-outline" size={18} color="#FFF" />
               <Text style={styles.buttonText}>Kopiera</Text>
             </TouchableOpacity>
-            {/* زر المشاركة */}
             <TouchableOpacity onPress={handleShareLink} style={styles.shareButton}>
-              <Ionicons name="share-social-outline" size={18} color="#FFF" style={styles.icon} />
+              <Ionicons name="share-social-outline" size={18} color="#FFF" />
               <Text style={styles.buttonText}>Dela</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
 
-      {/* عرض قائمة الأصدقاء في الانتظار */}
+      {/* قائمة الأصدقاء في الانتظار */}
       <View style={styles.sectionContainer}>
-        <Text style={[styles.sectionTitle,, { textAlign: 'center', alignSelf: 'center' }]}>In progress ({inProgressList.length})</Text>
+        <Text style={styles.sectionTitle}>In progress ({inProgressList.length})</Text>
         {isLoading ? (
-          <Text style={[styles.placeholderText, { textAlign: 'center', alignSelf: 'center' }]}>Laddar data...</Text> // في حال كان التحميل جارياً
+          <ActivityIndicator size="large" color={colors.primary} /> // مؤشر التحميل
         ) : inProgressList.length === 0 ? (
           <View style={styles.placeholderContainer}>
-            <Text style={styles.placeholderText}>Invite your friends to see progress here!</Text> {/* في حال لا يوجد أصدقاء في الانتظار */}
+            <Text style={styles.placeholderText}>
+              Invite your friends to see progress here!
+            </Text>
           </View>
         ) : (
-          // عرض الأصدقاء في الانتظار
           inProgressList.map((referral, index) => (
-            <Text key={index} style={styles.referralText}>{referral}</Text>
+            <Text key={index} style={styles.referralText}>
+              {referral}
+            </Text>
           ))
         )}
       </View>
@@ -142,113 +140,86 @@ export default function ReferFriendScreen() {
   );
 }
 
-// أنماط الصفحة
+// الأنماط
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: colors.background, // تحديد الخلفية
-  },
-  backButtonContainer: {
-    alignSelf: 'flex-start',
-    marginBottom: 10, // تحديد المسافة أسفل زر العودة
-  },
-  backButton: {
-    color: colors.primary,
-    fontSize: 16, // تحديد حجم الخط
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.primary,
-    textAlign: 'center', // محاذاة النص في المنتصف
+    textAlign: 'center',
     marginBottom: 10,
   },
   description: {
     fontSize: 16,
     color: colors.linkText,
     textAlign: 'center',
-    marginBottom: 20, // المسافة أسفل الوصف
-    lineHeight: 24, // تحديد المسافة بين الأسطر
+    marginBottom: 20,
+    lineHeight: 24,
   },
   candyLoopText: {
     color: colors.primary,
-    fontFamily: 'luckybones-bold', // استخدام الخط المطلوب
-    fontSize: 20,
+    fontWeight: 'bold',
   },
   linkContainer: {
-    width: '100%',
-    marginBottom: 20, // المسافة أسفل الحاوية
+    marginBottom: 20,
   },
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.linkText,
-    marginBottom: 5, // المسافة أسفل التسمية
+    marginBottom: 5,
   },
   linkWrapper: {
-    flexDirection: 'column',
     backgroundColor: colors.linkBackground,
-    borderRadius: 8,
     padding: 10,
-    alignItems: 'center', // محاذاة العناصر في المنتصف
+    borderRadius: 8,
   },
   linkText: {
     fontSize: 14,
     color: colors.linkText,
-    marginBottom: 10, // المسافة أسفل النص
+    marginBottom: 10,
     textAlign: 'center',
   },
   buttonGroup: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%', // تأكد من أن الحاوية تأخذ العرض الكامل
   },
   copyButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.copyButton,
     borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 15,
+    padding: 10,
     marginRight: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2, // إضافة الظلال للأزرار
   },
   shareButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.shareButton,
     borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2, // إضافة الظلال للأزرار
+    padding: 10,
   },
   buttonText: {
     color: colors.buttonText,
     fontSize: 14,
-    fontWeight: 'bold',
-    marginLeft: 5, // المسافة بين الأيقونة والنص
+    marginLeft: 5,
   },
   sectionContainer: {
-    marginTop: 20, // المسافة الرأسية بين الأقسام
+    marginTop: 20,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.primary,
-    marginBottom: 10, // المسافة أسفل العنوان
+    marginBottom: 10,
   },
   placeholderContainer: {
     alignItems: 'center',
-    marginTop: 10, // المسافة بين العناصر
+    justifyContent: 'center',
   },
   placeholderText: {
     fontSize: 16,
@@ -257,9 +228,6 @@ const styles = StyleSheet.create({
   referralText: {
     fontSize: 16,
     color: colors.linkText,
-    marginVertical: 5, // المسافة بين العناصر
-  },
-  icon: {
-    marginRight: 5, // المسافة بين الأيقونة والنص
+    marginVertical: 5,
   },
 });
