@@ -12,7 +12,6 @@ import LoginScreen from '../auth/LoginScreen';
 import SignUpScreen from '../auth/SignUpScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-
 const Stack = createNativeStackNavigator();
 
 function CustomHeader() {
@@ -30,7 +29,7 @@ function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
         header: () => <CustomHeader />,
         tabBarStyle: {
           backgroundColor: '#FFF2F5',
@@ -59,18 +58,18 @@ function TabLayout() {
         }}
       />
       <Tabs.Screen
-  name="top-customers"
-  options={{
-    title: 'Toppkunder',
-    tabBarIcon: ({ color, focused }) => (
-      <MaterialCommunityIcons
-        name={focused ? 'rocket-launch' : 'rocket-launch-outline'}
-        size={30} // حجم الأيقونة
-        color={color} // لون الأيقونة
+        name="top-customers"
+        options={{
+          title: 'Toppkunder',
+          tabBarIcon: ({ color, focused }) => (
+            <MaterialCommunityIcons
+              name={focused ? 'rocket-launch' : 'rocket-launch-outline'}
+              size={30}
+              color={color}
+            />
+          ),
+        }}
       />
-    ),
-  }}
-/>
       <Tabs.Screen
         name="stores"
         options={{
